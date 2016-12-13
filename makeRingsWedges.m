@@ -36,14 +36,8 @@ if ~isfield(params,'halfField')
     params.halfField    = 1;
 end
 %% Set variables
-if params.halfField
-    params.outerRad     = params.outerRad*2;
-    params.resolution   = params.resolution*2;
-    params.ringStep     = params.ringStep*2;
-    params.ringSize     = params.ringSize*2;
-end
 squareDim               = min(params.resolution);
-blankIms                = zeros(squareDim,squareDim,params.numSteps);
+blankIms                = 128*ones(squareDim,squareDim,params.numSteps);
 rings                   = blankIms;
 ringSize                = nan(params.numSteps,4);
 wedges                  = blankIms;
@@ -81,6 +75,9 @@ for i = 1:params.numSteps
     tmp(thesePix)       = 1;
     rings(:,:,i)        = tmp;
 end
+if params.halfField
+    rings(:,size(rings,2)/2 + 1:end,:) = 0;
+end
 %% Make wedges
 wedgeSize(1,:)          = [0,params.wedgeSize,0,0];
 for i = 2:params.numSteps
@@ -105,11 +102,6 @@ for i = 1:params.numSteps
     tmp(thesePix)       = 1;
     wedges(:,:,i)       = tmp;
 end
-%% Crop out field if 'halfField'
 if params.halfField
-    width               = 1:size(rings,2)/2;
-    tmp                 = (1:size(rings,1)*0.5);
-    height              = tmp + (size(rings,1)/2 - length(tmp)/2);
-    rings               = rings(height,width,:);
-    wedges              = wedges(height,width,:);
+    wedges(:,size(wedges,2)/2 + 1:end,:) = 0;
 end
