@@ -80,9 +80,6 @@ outDir                  = fullfile(preParams.sessionDir,'Stimuli');
 if ~exist(outDir,'dir')
     mkdir(outDir);
 end
-params.framesPerTR          = 1;
-params.fieldSize            = 72;
-params.TR                   = 3;
 params.stimParams.imagesFull = cat(3,ringsLeft,wedgesLeft);
 save(fullfile(outDir,'rh.ringWedge.mat'),'params');
 params.stimParams.imagesFull = cat(3,ringsRight,wedgesRight);
@@ -90,6 +87,11 @@ save(fullfile(outDir,'lh.ringWedge.mat'),'params');
 %% Make pRF maps
 hemis           = {'lh' 'rh'};
 b               = find_bold(preParams.sessionDir);
+params.fieldSize            = 72;
+params.framesPerTR          = 1;
+params.gridPoints           = 101;
+params.sigList              = 0.5:0.5:10;
+params.TR                   = 3;
 for hh = 1:2
     params.stimFile = fullfile(outDir,[hemis{hh} '.ringWedge.mat']);
     params.inVol    = fullfile(preParams.sessionDir,'pRFs',[hemis{hh} '.surf.tcs.nii.gz']);

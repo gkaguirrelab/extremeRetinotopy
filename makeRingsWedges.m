@@ -1,9 +1,20 @@
 function [rings, wedges] = makeRingsWedges(params)
 
-% Make ring and wedge stimuli
+% Makes ring and wedge stimuli
 %
 %   Usage:
 %       [rings, wedges] = makeRingsWedges(params)
+%
+%   Defaults:
+%       params.resolution   = [1920 1080]; % screen resolution
+%       params.horRad       = 72; % horizontal visual field radius (degrees)
+%       params.verRad       = 20; % vertical visual field radius (degrees)
+%       params.numSteps     = 12; % number of ring/wedge steps / cycle
+%       params.ringSize     = 18; % ring width (degrees)
+%       params.ringStep     = 6; % ring step size (degrees)
+%       params.wedgeSize    = 30; % wedge width (degrees)
+%       params.wedgeStep    = 15; % wedge step size (degrees)
+%       params.halfField    = 1; % 1 - half visual field, 0 - full field
 %
 %   Written by Andrew S Bock Dec 2016
 
@@ -14,8 +25,11 @@ end
 if ~isfield(params,'resolution')
     params.resolution   = [1920 1080];
 end
-if ~isfield(params,'outerRad')
-    params.outerRad     = 72;
+if ~isfield(params,'horRad')
+    params.horRad       = 72;
+end
+if ~isfield(params,'verRad')
+    params.verRad       = 20;
 end
 if ~isfield(params,'numSteps')
     params.numSteps     = 12;
@@ -36,16 +50,16 @@ if ~isfield(params,'halfField')
     params.halfField    = 1;
 end
 %% Set variables
-squareDim               = min(params.resolution);
-blankIms                = 128*ones(squareDim,squareDim,params.numSteps);
+minDim                  = min(params.resolution);
+blankIms                = 128*ones(minDim,minDim,params.numSteps);
 rings                   = blankIms;
 ringSize                = nan(params.numSteps,4);
 wedges                  = blankIms;
 wedgeSize               = nan(params.numSteps,4);
 %% Make blank images, calculate radius
 [x,y]                   = meshgrid(...
-    linspace(-squareDim/2,squareDim/2,squareDim),...
-    linspace(-squareDim/2,squareDim/2,squareDim));
+    linspace(-minDim/2,minDim/2,minDim),...
+    linspace(-minDim/2,minDim/2,minDim));
 r                       = sqrt (x.^2  + y.^2);
 p                       = cart2pol(x,y);
 p                       = p - pi/2;
@@ -53,30 +67,36 @@ p                       = wrapToPi(p);
 %% Make rings
 ringSize(1,:)           = [0,params.ringSize,0,0];
 for i = 2:params.numSteps
-    tmp                 = rem([ringSize(i-1,1:2) + params.ringStep,0,0],params.outerRad);
+    tmp                 = rem([ringSize(i-1,1:2) + params.ringStep,0,0],params.horRad);
     if tmp(2) > tmp(1)
         % non-split rings
         ringSize(i,:)   = tmp;
     else
         % split rings
         ringSize(i,1)   = tmp(1);
-        ringSize(i,2)   = params.outerRad;
+        ringSize(i,2)   = params.horRad;
         ringSize(i,3)   = 0;
         ringSize(i,4)   = tmp(2) + ringSize(i-1,4);
     end
 end
 % Convert to pixel units
-ringSize = ((ringSize / params.outerRad)  * squareDim) / 2; % divide by 2 for radius
+ringSize = ((ringSize / params.horRad)  * minDim) / 2; % divide by 2 for radius
 for i = 1:params.numSteps
     thesePix            = ...
         (r > ringSize(i,1) & r < ringSize(i,2)) | ...
         (r > ringSize(i,3) & r < ringSize(i,4));
     tmp = squeeze(rings(:,:,i));
-    tmp(thesePix)       = 1;
+    tmp(thesePix)       = 255;
     rings(:,:,i)        = tmp;
 end
 if params.halfField
-    rings(:,size(rings,2)/2 + 1:end,:) = 0;
+    % trim hemifield
+    rings(:,size(rings,2)/2 + 1:end,:) = 128;
+    % trim upper/lower portions
+    trimSize            = (params.verRad/params.horRad)*size(wedges,1)/2;
+    top                 = 1:trimSize;
+    bot                 = (size(rings,1) - trimSize) + 1:size(rings,1);
+    rings([top,bot],:,:) = 128;
 end
 %% Make wedges
 wedgeSize(1,:)          = [0,params.wedgeSize,0,0];
@@ -99,9 +119,15 @@ for i = 1:params.numSteps
         (p > wedgeSize(i,1) & p < wedgeSize(i,2)) | ...
         (p > wedgeSize(i,3) & p < wedgeSize(i,4));
     tmp = squeeze(wedges(:,:,i));
-    tmp(thesePix)       = 1;
+    tmp(thesePix)       = 255;
     wedges(:,:,i)       = tmp;
 end
 if params.halfField
-    wedges(:,size(wedges,2)/2 + 1:end,:) = 0;
+    % trim hemifield
+    wedges(:,size(wedges,2)/2 + 1:end,:) = 128;
+    % trim upper/lower portions
+    trimSize            = (params.verRad/params.horRad)*size(wedges,1)/2;
+    top                 = 1:trimSize;
+    bot                 = (size(wedges,1) - trimSize) + 1:size(wedges,1);
+    wedges([top,bot],:,:) = 128;
 end
