@@ -151,3 +151,45 @@ for i = 1:length(sessionDirs)
         pRFs                = makePRFmaps(pRFparams);
     end
 end
+%% Project pRF to fsaverage_sym space (all project to left hemisphere)
+srcROI = 'cortex';
+for ss = 1:length(sessions)
+    session_dir = sessions{ss};
+    subject_name = subjects{ss};
+    boldDirs = find_bold(session_dir);
+    for rr = 1:length(pRFfuncs)
+        rootName = pRFfuncs{rr};
+        for hh = 1:length(hemis)
+            hemi = hemis{hh};
+            for mm = 1:length(pRFmaps)
+                pRFmap = pRFmaps{mm};
+                sval = fullfile(session_dir,'pRFs',...
+                    [hemi '.' rootName '.' srcROI '.' pRFmap '.avg.prfs.nii.gz']);
+                tval = fullfile(session_dir,'pRFs',...
+                    [hemi '.' rootName '.' srcROI '.' pRFmap '.avg.prfs.sym.nii.gz']);
+                if strcmp(hemi,'lh')
+                    mri_surf2surf(subject_name,'fsaverage_sym',sval,tval,hemi);
+                else
+                    mri_surf2surf([subject_name '/xhemi'],'fsaverage_sym',sval,tval,'lh');
+                end
+            end
+        end
+    end
+    progBar(ss);
+end
+% Average maps after pRF scripts have finished
+params.inDir            = fullfile(params.sessionDir,'pRFs');
+params.outDir           = fullfile(params.sessionDir,'pRFs');
+for i = 1:length(hemis)
+    params.baseName     = hemis{i};
+    avgPRFmaps(params)
+end
+%% Prepare pRF template for fitting in Mathematica
+for ff = 1:length(pRFfuncs);
+    for ss = 1:length(sessions)
+        session_dir = sessions{ss};
+        subject_name = subjects{ss};
+        outName = outNames{ss};
+        prepare_pRF_Mathematica(session_dir,subject_name,outName,pRFfuncs{ff});
+    end
+end

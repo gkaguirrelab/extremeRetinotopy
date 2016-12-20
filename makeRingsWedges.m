@@ -6,7 +6,7 @@ function [rings, wedges] = makeRingsWedges(params)
 %       [rings, wedges] = makeRingsWedges(params)
 %
 %   Defaults:
-%       params.resolution   = [1920 1080]; % screen resolution
+%       params.resolution   = 1080; % minimum screen resolution dimension
 %       params.horRad       = 72; % horizontal visual field radius (degrees)
 %       params.verRad       = 20; % vertical visual field radius (degrees)
 %       params.circRad      = 72; % radius of circular visual field (degrees)
@@ -24,7 +24,7 @@ if ~exist('params','var')
     params              = [];
 end
 if ~isfield(params,'resolution')
-    params.resolution   = [1920 1080];
+    params.resolution   = 1080;
 end
 if ~isfield(params,'horRad')
     params.horRad       = 72;
@@ -54,7 +54,7 @@ if ~isfield(params,'halfField')
     params.halfField    = 1;
 end
 %% Set variables
-minDim                  = min(params.resolution);
+minDim                  = params.resolution;
 blankIms                = 128*ones(minDim,minDim,params.numSteps);
 rings                   = blankIms;
 ringSize                = nan(params.numSteps,4);
