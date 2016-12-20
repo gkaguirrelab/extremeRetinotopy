@@ -57,34 +57,56 @@ end
 sessionDirs             = listdir(dataDir,'dirs');
 for i = 1:length(sessionDirs)
     sessionDir          = fullfile(dataDir,sessionDirs{i});
-    b                   = find_bold(sessionDir);
+    outDir              = fullfile(sessionDir,'pRFs');
+    if ~exist(outDir,'dir')
+        mkdir(outDir);
+    end
+    lhRingDir           = listdir(fullfile(sessionDir,'*rng_lt'),'dirs');
+    if isempty(lhRingDir)
+        lhRingDir       = listdir(fullfile(sessionDir,'*rng_left'),'dirs');
+    end
+    lhWedgeDir          = listdir(fullfile(sessionDir,'*wed_lt'),'dirs');
+    if isempty(lhWedgeDir)
+        lhWedgeDir      = listdir(fullfile(sessionDir,'*wed_left'),'dirs');
+    end
+    rhRingDir           = listdir(fullfile(sessionDir,'*rng_rt'),'dirs');
+    if isempty(rhRingDir)
+        rhRingDir       = listdir(fullfile(sessionDir,'*rng_right'),'dirs');
+    end
+    rhWedgeDir          = listdir(fullfile(sessionDir,'*wed_rt'),'dirs');
+    if isempty(rhWedgeDir)
+        rhWedgeDir      = listdir(fullfile(sessionDir,'*wed_right'),'dirs');
+    end
     % left hemisphere
-    lhRing              = load_nifti(fullfile(sessionDir,b{1},'wdrf.tf.surf.lh.nii.gz'));
-    lhWedge             = load_nifti(fullfile(sessionDir,b{2},'wdrf.tf.surf.lh.nii.gz'));
+    lhRing              = load_nifti(fullfile(sessionDir,rhRingDir{1},'wdrf.tf.surf.lh.nii.gz'));
+    lhWedge             = load_nifti(fullfile(sessionDir,rhWedgeDir{1},'wdrf.tf.surf.lh.nii.gz'));
     out                 = lhRing;
     out.dim(5)          = out.dim(5)*2;
     tmp1                = convert_to_psc(squeeze(lhRing.vol));
     tmp2                = convert_to_psc(squeeze(lhWedge.vol));
     out.vol             = [tmp1,tmp2];
-    save_nifti(out,fullfile(sessionDir,'pRFs','lh.surf.tcs.nii.gz'));
+    save_nifti(out,fullfile(outDir,'lh.surf.tcs.nii.gz'));
     % right hemisphere
-    rhRing              = load_nifti(fullfile(sessionDir,b{3},'wdrf.tf.surf.rh.nii.gz'));
-    rhWedge             = load_nifti(fullfile(sessionDir,b{4},'wdrf.tf.surf.rh.nii.gz'));
+    rhRing              = load_nifti(fullfile(sessionDir,lhRingDir{1},'wdrf.tf.surf.rh.nii.gz'));
+    rhWedge             = load_nifti(fullfile(sessionDir,lhWedgeDir{1},'wdrf.tf.surf.rh.nii.gz'));
     out                 = rhRing;
     out.dim(5)          = out.dim(5)*2;
     tmp1                = convert_to_psc(squeeze(rhRing.vol));
     tmp2                = convert_to_psc(squeeze(rhWedge.vol));
     out.vol             = [tmp1,tmp2];
-    save_nifti(out,fullfile(sessionDir,'pRFs','rh.surf.tcs.nii.gz'));
+    save_nifti(out,fullfile(outDir,'rh.surf.tcs.nii.gz'));
 end
 %% Make retinotopy stimuli
 
 clear params;
 
-params.horRad       = 73.5;
-params.circRad      = 72;
+% note, for the .mat file saved below, the structure must be named 'params'
+% for later code (i.e. the 'makePRFmaps' function) to work
+
+params.horRad           = 73.5;
+params.circRad          = 72;
 [~,wedges] = makeRingsWedges(params);
-params.circRad      = 73.5;
+params.circRad          = 73.5;
 [rings] = makeRingsWedges(params);
 % Rings - left hemifield
 ringsLeft = repmat(rings,1,1,8);
@@ -110,23 +132,22 @@ for i = 1:length(sessionDirs)
     save(fullfile(outDir,'lh.ringWedge.mat'),'params');
 end
 %% Make pRF maps
-hemis                   = {'lh' 'rh'};
-sessionDirs             = listdir(dataDir,'dirs');
+hemis                       = {'lh' 'rh'};
+sessionDirs                 = listdir(dataDir,'dirs');
 for i = 1:length(sessionDirs)
-    sessionDir          = fullfile(dataDir,sessionDirs{i});
-    b                   = find_bold(sessionDir);
-    params.fieldSize    = 73.5;
-    params.padFactor    = 0.25;
-    params.framesPerTR  = 1;
-    params.gridPoints   = 101;
-    params.sigList      = 1:0.5:10;
-    params.TR           = 3;
+    sessionDir              = fullfile(dataDir,sessionDirs{i});
+    pRFparams.fieldSize     = 73.5;
+    pRFparams.padFactor     = 0.25;
+    pRFparams.framesPerTR   = 1;
+    pRFparams.gridPoints    = 101;
+    pRFparams.sigList       = 1:0.5:10;
+    pRFparams.TR            = 3;
     for hh = 1:2
-        params.stimFile = fullfile(outDir,[hemis{hh} '.ringWedge.mat']);
-        params.inVol    = fullfile(sessionDir,'pRFs',[hemis{hh} '.surf.tcs.nii.gz']);
-        params.outDir   = fullfile(sessionDir,'pRFs');
-        params.baseName = hemis{hh};
+        pRFparams.stimFile  = fullfile(outDir,[hemis{hh} '.ringWedge.mat']);
+        pRFparams.inVol     = fullfile(sessionDir,'pRFs',[hemis{hh} '.surf.tcs.nii.gz']);
+        pRFparams.outDir    = fullfile(sessionDir,'pRFs');
+        pRFparams.baseName  = hemis{hh};
         % Calculate pRFs, save maps
-        pRFs            = makePRFmaps(params);
+        pRFs                = makePRFmaps(pRFparams);
     end
 end
