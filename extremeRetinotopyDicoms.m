@@ -21,17 +21,22 @@ for i = 1:length(inD)
         system(['mv ' fullfile(params.inDir,inD{i},inF{j}) ' ' ...
             fullfile(params.outDir,sprintf('001_%06d_%06d.dcm',i,j))]);
     end
+    system(['rm -rf ' fullfile(params.inDir,inD{i})]);
 end
 %% Sort the dicoms
 dicom_sort(params.outDir);
 
-%% Fix the output dicom directory names
+%% Remove spaces from the output dicom directory names
 d = listdir(params.outDir,'dirs');
 for i = 1:length(d)
     outDir = strrep(d{i},' ','');
     if ~strcmp(d{i},outDir)
         movefile(fullfile(params.outDir,d{i}),fullfile(params.outDir,outDir));
     end
+end
+%% Adjust the directory names
+d = listdir(params.outDir,'dirs');
+for i = 1:length(d)
     outDir = strrep(d{i},'Exp_rng','bold_Exp_rng');
     if ~strcmp(d{i},outDir)
         movefile(fullfile(params.outDir,d{i}),fullfile(params.outDir,outDir));
