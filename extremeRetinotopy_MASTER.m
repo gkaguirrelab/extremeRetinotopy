@@ -53,9 +53,12 @@ end
 
 %%% Run the preprocessing scripts %%%
 
+%% RUN QA after preprocessing
+% YORK_analysis will be the output folder
+
 %% Concatenate the retinotopy runs
 sessionDirs             = listdir(dataDir,'dirs');
-for i = 1:length(sessionDirs)
+for i = 1%:length(sessionDirs)
     sessionDir          = fullfile(dataDir,sessionDirs{i});
     outDir              = fullfile(sessionDir,'pRFs');
     if ~exist(outDir,'dir')
@@ -120,7 +123,7 @@ wedgesLeft = cat(3,128*ones(size(wedgesLeft,1),size(wedgesLeft,2),3),wedgesLeft)
 wedgesRight = rot90(wedgesLeft,2);
 % Save stimuli in .mat file
 sessionDirs             = listdir(dataDir,'dirs');
-for i = 1:length(sessionDirs)
+for i = 1%:length(sessionDirs)
     sessionDir          = fullfile(dataDir,sessionDirs{i});
     outDir              = fullfile(sessionDir,'Stimuli');
     if ~exist(outDir,'dir')
@@ -134,7 +137,7 @@ end
 %% Make pRF maps
 hemis                       = {'lh' 'rh'};
 sessionDirs                 = listdir(dataDir,'dirs');
-for i = 1:length(sessionDirs)
+for i = 1%:length(sessionDirs)
     sessionDir              = fullfile(dataDir,sessionDirs{i});
     pRFparams.fieldSize     = 73.5;
     pRFparams.padFactor     = 0.25;
@@ -151,6 +154,15 @@ for i = 1:length(sessionDirs)
         pRFs                = makePRFmaps(pRFparams);
     end
 end
+
+
+%% Below is not ready
+
+
+%%% Andrew will update %%%
+
+
+
 %% Project pRF to fsaverage_sym space (all project to left hemisphere)
 srcROI = 'cortex';
 for ss = 1:length(sessions)
