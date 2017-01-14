@@ -7,16 +7,16 @@ function [x,y,dx,dy] = calcScreenVisualAngle(params)
 %
 %   Defaults:
 %       params.viewDist     = 27.5; % viewing distance (eye to mirror + mirror to screen)
-%       params.screenX      = 51.8; % width of screen (cm)
+%       params.screenX      = 29.1; % width of screen (cm)
 %       params.screenY      = 29.1; % height of screen (cm)
-%       params.screenRes    = [1920 1080]; % screen resolution (pixels)
-%       params.fixX         = -19.9799; % x position of the fixation cross
+%       params.screenRes    = 1080; % screen resolution (pixels)
+%       params.fixX         = -29.1; % x position of the fixation cross
 %       params.fixY         = 0; % y position of the fixation cross
-%       params.x0           = -19.9799/2; % x position of the eye in screen coordinates
+%       params.x0           = 0; % x position of the eye in screen coordinates
 %       params.y0           = 0; % y position of the eye in screen coordinates
 %       [params.x,params.y] = meshgrid(...
-%           linspace(-params.screenX/2,params.screenX/2,params.screenRes(1)),...
-%           linspace(-params.screenY/2,params.screenY/2,params.screenRes(2)));
+%           linspace(-params.screenX/2,params.screenX/2,params.screenRes),...
+%           linspace(-params.screenY/2,params.screenY/2,params.screenRes));
 %
 %   Outputs:
 %       x                   = x position of pixels (visual angle - radians)
@@ -37,16 +37,16 @@ if ~isfield(params,'viewDist');
     params.viewDist     = 27.5; % viewing distance
 end
 if ~isfield(params,'screenX');
-    params.screenX      = 51.8; % width of screen (cm)
+    params.screenX      = 29.1; % width of screen (cm)
 end
 if ~isfield(params,'screenY');
     params.screenY      = 29.1; % height of screen (cm)
 end
 if ~isfield(params,'screenRes');
-    params.screenRes    = [1920 1080]; % screen resolution (pixels)
+    params.screenRes    = 1080; % screen resolution (pixels)
 end
 if ~isfield(params,'fixX');
-    params.fixX         = -19.9799; % x position of the fixation cross
+    params.fixX         = -29.1; % x position of the fixation cross
 end
 if ~isfield(params,'fixY');
     params.fixY         = 0; % y position of the fixation cross
