@@ -145,6 +145,15 @@ for i = 1%:length(sessionDirs)
     pRFparams.gridPoints    = 101;
     pRFparams.sigList       = 1:0.5:10;
     pRFparams.TR            = 3;
+
+    pRFparams.viewDist     = 27.5; % viewing distance
+    pRFparams.screenX      = 51.8; % width of screen (cm)
+    pRFparams.screenY      = 29.1; % height of screen (cm)
+    pRFparams.screenRes    = [1920 1080]; % screen resolution (pixels)
+    pRFparams.fixX         = -19.9799; % x position of the fixation cross
+    pRFparams.fixY         = 0; % y position of the fixation cross
+    pRFparams.x0           = 0; % x position of the eye in screen coordinates
+    pRFparams.y0           = 0; % y position of the eye in screen coordinates
     for hh = 1:2
         pRFparams.stimFile  = fullfile(outDir,[hemis{hh} '.ringWedge.mat']);
         pRFparams.inVol     = fullfile(sessionDir,'pRFs',[hemis{hh} '.surf.tcs.nii.gz']);

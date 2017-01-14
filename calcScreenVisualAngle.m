@@ -52,7 +52,7 @@ if ~isfield(params,'fixY');
     params.fixY         = 0; % y position of the fixation cross
 end
 if ~isfield(params,'x0');
-    params.x0           = -19.9799; % x position of the eye in screen coordinates
+    params.x0           = 0; % x position of the eye in screen coordinates
 end
 if ~isfield(params,'y0');
     params.y0           = 0; % y position of the eye in screen coordinates
