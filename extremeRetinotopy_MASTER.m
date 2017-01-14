@@ -145,6 +145,7 @@ for i = 1%:length(sessionDirs)
     pRFparams.gridPoints    = 101;
     pRFparams.sigList       = 1:0.5:10;
     pRFparams.TR            = 3;
+    pRFparams.useVA         = 1; % use visual angle
 
     pRFparams.viewDist     = 27.5; % viewing distance
     pRFparams.screenX      = 51.8; % width of screen (cm)
