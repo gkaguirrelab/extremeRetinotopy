@@ -6,6 +6,20 @@
 dataDir                         = '/data/jag/TOME/extremeRetinotopy/';
 logDir                          = '/data/jag/TOME/LOGS';
 
+% Set Dropbox directory
+%get hostname (for melchior's special dropbox folder settings)
+[~,hostname] = system('hostname');
+hostname = strtrim(lower(hostname));
+if strcmp(hostname,'melchior.uphs.upenn.edu')
+    dropboxDir = '/Volumes/Bay_2_data/giulia/Dropbox-Aguirre-Brainard-Lab';
+else
+    % Get user name
+    [~, tmpName] = system('whoami');
+    userName = strtrim(tmpName);
+    dropboxDir = ['/Users/' userName '/Dropbox-Aguirre-Brainard-Lab'];
+end
+
+
 %% Unzip files
 zipDirs                         = listdir(fullfile(dataDir,'*.zip'),'files');
 cd(dataDir);
@@ -58,7 +72,8 @@ end
 
 %% Concatenate the retinotopy runs
 sessionDirs             = listdir(dataDir,'dirs');
-for i = 1%:length(sessionDirs)
+for i = 1:length(sessionDirs)
+    fprintf('Processing run %d of %d...\n',i,length(sessionDirs))
     sessionDir          = fullfile(dataDir,sessionDirs{i});
     outDir              = fullfile(sessionDir,'pRFs');
     if ~exist(outDir,'dir')
@@ -123,7 +138,8 @@ wedgesLeft = cat(3,128*ones(size(wedgesLeft,1),size(wedgesLeft,2),3),wedgesLeft)
 wedgesRight = rot90(wedgesLeft,2);
 % Save stimuli in .mat file
 sessionDirs             = listdir(dataDir,'dirs');
-for i = 1%:length(sessionDirs)
+for i = 1:length(sessionDirs)
+    fprintf('Processing run %d of %d...\n',i,length(sessionDirs))
     sessionDir          = fullfile(dataDir,sessionDirs{i});
     outDir              = fullfile(sessionDir,'Stimuli');
     if ~exist(outDir,'dir')
@@ -137,8 +153,10 @@ end
 %% Make pRF maps
 hemis                       = {'lh' 'rh'};
 sessionDirs                 = listdir(dataDir,'dirs');
-for i = 1%:length(sessionDirs)
+for i = 19:length(sessionDirs)
+    fprintf('Processing run %d of %d...\n',i,length(sessionDirs))
     sessionDir              = fullfile(dataDir,sessionDirs{i});
+    outDir              = fullfile(sessionDir,'Stimuli');
     pRFparams.fieldSize     = 73.5;
     pRFparams.padFactor     = 0.25;
     pRFparams.framesPerTR   = 1;
@@ -166,52 +184,69 @@ for i = 1%:length(sessionDirs)
 end
 
 
-%% Below is not ready
-
-
-%%% Andrew will update %%%
-
-
-
 %% Project pRF to fsaverage_sym space (all project to left hemisphere)
-srcROI = 'cortex';
-for ss = 1:length(sessions)
-    session_dir = sessions{ss};
-    subject_name = subjects{ss};
-    boldDirs = find_bold(session_dir);
-    for rr = 1:length(pRFfuncs)
-        rootName = pRFfuncs{rr};
-        for hh = 1:length(hemis)
-            hemi = hemis{hh};
-            for mm = 1:length(pRFmaps)
-                pRFmap = pRFmaps{mm};
-                sval = fullfile(session_dir,'pRFs',...
-                    [hemi '.' rootName '.' srcROI '.' pRFmap '.avg.prfs.nii.gz']);
-                tval = fullfile(session_dir,'pRFs',...
-                    [hemi '.' rootName '.' srcROI '.' pRFmap '.avg.prfs.sym.nii.gz']);
-                if strcmp(hemi,'lh')
-                    mri_surf2surf(subject_name,'fsaverage_sym',sval,tval,hemi);
-                else
-                    mri_surf2surf([subject_name '/xhemi'],'fsaverage_sym',sval,tval,'lh');
-                end
+hemis = {'lh' 'rh'};
+sessionDirs = listdir(dataDir,'dirs');
+pRFmaps = {...
+    'co' ...
+    'ecc' ...
+    'pol' ...
+    'sig' ...
+    'surf' ...
+    };
+for ss = 1:length(sessionDirs)
+    fprintf('Processing subject %d of %d...\n',ss,length(sessionDirs))
+    sessionDir = fullfile(dataDir,sessionDirs{ss});
+    outputDir = fullfile(dropboxDir,'YORK_processing',sessionDirs{ss},'pRFs');
+    if ~exist (outputDir, 'dir')
+        mkdir (outputDir)
+    end
+    subjectName = sessionDirs{ss};
+    boldDirs = find_bold(sessionDir);
+    for hh = 1:length(hemis)
+        hemi = hemis{hh};
+        for mm = 1:length(pRFmaps)
+            pRFmap = pRFmaps{mm};
+            sval = fullfile(sessionDir,'pRFs',...
+                [hemi '.' pRFmap '.nii.gz']);
+            tval = fullfile(outputDir,'pRFs',...
+                 [hemi '.' pRFmap '.sym.nii.gz']);
+            if strcmp(hemi,'lh')
+                mri_surf2surf(subjectName,'fsaverage_sym',sval,tval,hemi);
+            else
+                mri_surf2surf([subjectName '/xhemi'],'fsaverage_sym',sval,tval,'lh');
             end
         end
+        
     end
-    progBar(ss);
 end
-% Average maps after pRF scripts have finished
+
+
+%% Below is not ready
+
+% 1. bin subject according to which hemi was stimulated
+% 2. project "good" hemis in fslaverage space
+
+% 3. weight data with percentage variance explained
+
+% 4. circular average all projected hemis
+%% Average maps after pRF scripts have finished
 params.inDir            = fullfile(params.sessionDir,'pRFs');
 params.outDir           = fullfile(params.sessionDir,'pRFs');
 for i = 1:length(hemis)
     params.baseName     = hemis{i};
     avgPRFmaps(params)
 end
+
+
+
+
 %% Prepare pRF template for fitting in Mathematica
 for ff = 1:length(pRFfuncs);
     for ss = 1:length(sessions)
-        session_dir = sessions{ss};
-        subject_name = subjects{ss};
+        sessionDir = sessions{ss};
+        subjectName = subjects{ss};
         outName = outNames{ss};
-        prepare_pRF_Mathematica(session_dir,subject_name,outName,pRFfuncs{ff});
+        prepare_pRF_Mathematica(sessionDir,subjectName,outName,pRFfuncs{ff});
     end
 end
