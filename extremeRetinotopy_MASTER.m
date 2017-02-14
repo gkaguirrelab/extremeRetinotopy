@@ -192,9 +192,9 @@ pRFmaps = {...
     'ecc' ...
     'pol' ...
     'sig' ...
-    'surf' ...
+%     'surf.tcs' ...  mri_surf2surf does not work on this one
     };
-for ss = 1:length(sessionDirs)
+for ss = 19:length(sessionDirs)
     fprintf('Processing subject %d of %d...\n',ss,length(sessionDirs))
     sessionDir = fullfile(dataDir,sessionDirs{ss});
     outputDir = fullfile(dropboxDir,'YORK_processing',sessionDirs{ss},'pRFs');
@@ -209,13 +209,16 @@ for ss = 1:length(sessionDirs)
             pRFmap = pRFmaps{mm};
             sval = fullfile(sessionDir,'pRFs',...
                 [hemi '.' pRFmap '.nii.gz']);
-            tval = fullfile(outputDir,'pRFs',...
+            tval = fullfile(sessionDir,'pRFs',...
                  [hemi '.' pRFmap '.sym.nii.gz']);
             if strcmp(hemi,'lh')
                 mri_surf2surf(subjectName,'fsaverage_sym',sval,tval,hemi);
             else
                 mri_surf2surf([subjectName '/xhemi'],'fsaverage_sym',sval,tval,'lh');
             end
+            %copy over the sym files on dropbox
+            fprintf ('Copying to dropbox...\n')
+            copyfile(tval,fullfile(outputDir,[hemi '.' pRFmap '.sym.nii.gz']))
         end
         
     end
