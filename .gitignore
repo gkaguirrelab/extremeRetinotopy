@@ -1,2 +1,10 @@
+### OS X ###
 .DS_Store
 *~
+
+### Python ###
+env/
+
+### Data ###
+averages/
+YORK_processing/
