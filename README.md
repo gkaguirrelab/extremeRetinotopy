@@ -11,8 +11,11 @@ the `extremeRetinotopy_MASTER.m` script.
 All the Python analysis was done in an IPython Notebook located at
 `fsAverage.ipynb`. To actually open and run the analysis, install the
 dependencies (numpy, pandas, scipy, matplotlib, seaborn, nibabel) and most
-importantly install the IPython/Jupyter notebook environment. Then in the local
-directory, run in the terminal:
+importantly install the IPython/Jupyter notebook environment.
+
+    $ pip install -r requirements.txt
+
+Once installed, in the local directory, run in the terminal:
 
     $ jupyter notebook
 

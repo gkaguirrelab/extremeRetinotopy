@@ -1,0 +1,16 @@
+ipykernel==4.5.2
+ipython==5.2.2
+jupyter-client==4.4.0
+jupyter-core==4.3.0
+matplotlib==2.0.0
+nbconvert==5.1.1
+nbformat==4.2.0
+nibabel==2.1.0
+nilearn==0.2.6
+notebook==4.4.1
+numpy==1.12.0
+pandas==0.19.2
+scikit-learn==0.18.1
+scipy==0.18.1
+seaborn==0.7.1
+six==1.10.0
