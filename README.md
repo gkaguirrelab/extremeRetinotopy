@@ -31,4 +31,7 @@ and [freesurferMatlabLibrary](https://github.com/gkaguirrelab/freesurferMatlabLi
 should be downloaded from GitHub and installed to the MATLAB path. Then, to
 actually visualize a file, the `surface_plot` utility function does the trick:
 
-    >> surface_plot('co', '/home/adel/aguirre/extremeRetinotopy/averages/avg.lh.ecc.sym.nii.gz', 'fsaverage_sym', 'lh')
+    >> surface_plot('extremeEcc', '/home/adel/aguirre/extremeRetinotopy/averages/avg.ecc.sym.nii.gz', 'fsaverage_sym', 'lh')
+
+The relevant parameters for the map type for the extreme retinotopy project are
+`pol`, `extremeEcc`, `co`, and `sig`.
