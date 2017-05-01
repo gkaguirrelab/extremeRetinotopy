@@ -13,6 +13,8 @@ test_angles = [
     (np.pi, 0),
     (np.pi - 1, 1),
     (1 - np.pi, -1),
+    (np.pi / 2, np.pi / 2),
+    (-np.pi / 2, -np.pi / 2)
 ]
 
 
