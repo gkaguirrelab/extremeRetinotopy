@@ -19,6 +19,11 @@ Once installed, in the local directory, run in the terminal:
 
     $ jupyter notebook
 
+### Running Tests
+
+There is a small number of tests for utility functions in the file `tests.py`.
+These tests can be run using `py.test`.
+
 ## Visualizing surface files
 
 To visualize the resulting surface files, the [MRlyze](https://github.com/gkaguirrelab/MRlyze)
